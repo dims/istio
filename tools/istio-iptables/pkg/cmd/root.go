@@ -201,7 +201,7 @@ func getLocalIP(dualStack bool) (netip.Addr, bool, error) {
 			}
 			// unwrap the IPv4-mapped IPv6 address
 			unwrapAddr := ipAddr.Unmap()
-			if !unwrapAddr.IsLoopback() && !unwrapAddr.IsLinkLocalUnicast() && !unwrapAddr.IsLinkLocalMulticast() {
+			if !unwrapAddr.IsLoopback() && !unwrapAddr.IsLinkLocalMulticast() {
 				isIPv6 = unwrapAddr.Is6()
 				ipAddrs = append(ipAddrs, unwrapAddr)
 				if !dualStack {
