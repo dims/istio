@@ -30,6 +30,7 @@ import (
 	"istio.io/istio/pilot/cmd/pilot-agent/config"
 	"istio.io/istio/pilot/cmd/pilot-agent/options"
 	"istio.io/istio/pilot/cmd/pilot-agent/status"
+	"istio.io/istio/pilot/pkg/features"
 	"istio.io/istio/pilot/pkg/model"
 	"istio.io/istio/pilot/pkg/util/network"
 	"istio.io/istio/pkg/bootstrap"
@@ -365,6 +366,13 @@ func applyExcludeInterfaces(ifaces []string) []string {
 				continue
 			}
 			unwrapAddr := ipAddr.Unmap()
+			if !features.EnableDualStack {
+				if !unwrapAddr.IsValid() || unwrapAddr.IsLoopback() ||
+					unwrapAddr.IsLinkLocalUnicast() || unwrapAddr.IsLinkLocalMulticast() ||
+					unwrapAddr.IsUnspecified() {
+					continue
+				}
+			}
 
 			// Add to map
 			exclusionMap.Insert(unwrapAddr.String())

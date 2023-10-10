@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"time"
 
+	"istio.io/istio/pilot/pkg/features"
 	"istio.io/istio/pkg/log"
 	"istio.io/istio/pkg/sleep"
 )
@@ -102,8 +103,14 @@ func getPrivateIPsIfAvailable() ([]string, bool) {
 			}
 			// unwrap the IPv4-mapped IPv6 address
 			unwrapAddr := ipAddr.Unmap()
-			if !unwrapAddr.IsValid() || unwrapAddr.IsLoopback() || unwrapAddr.IsLinkLocalMulticast() {
-				continue
+			if !features.EnableDualStack {
+				if !unwrapAddr.IsValid() || unwrapAddr.IsLoopback() || unwrapAddr.IsLinkLocalUnicast() || unwrapAddr.IsLinkLocalMulticast() {
+					continue
+				}
+			} else {
+				if !unwrapAddr.IsValid() || unwrapAddr.IsLoopback() || unwrapAddr.IsLinkLocalMulticast() {
+					continue
+				}
 			}
 			if unwrapAddr.IsUnspecified() {
 				ok = false
